@@ -1,0 +1,27 @@
+{
+    "test": "testValue", 
+    "testList" : ["testValue1", "testValue2"], 
+    "testMap" : {"testKey" : "testValue"},
+    "testComplex" : {
+        "test": "testValue", 
+        "testList" : ["testValue1", "testValue2"], 
+        "testMap" : {"testKey" : "testValue"}
+    },
+    "testComplex2" : {
+        "test": "testValue", 
+        "testList" : ["testValue1", "testValue2"], 
+        "testMap" : {"testKey" : "testValue"}
+    },
+    "test2" : "testValue2",
+    "testList4" : ["testValue1", "testValue2"],
+    "testComplex3": {
+        "test": "testValue",
+        "testList": [
+            "testValue1",
+            "testValue2"
+        ],
+        "testMap": {
+            "testKey": "testValue"
+        }
+    }
+}

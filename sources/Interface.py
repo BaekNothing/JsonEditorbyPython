@@ -18,26 +18,73 @@ class Vector2:
         self.y = y
     
 class Util :    
-    __btnList = {}
-    def AddButton(name : str, root : tkinter.Tk, text : str, command) -> None :
+    __btnList = {str : tkinter.Button}
+    def AddButton(name : str, root : tkinter.Tk, text : str, command) -> tkinter.Button :
         Util.__btnList[name] = Util.__SetButtonInWindow(root, text, command)
+        return Util.__btnList[name]
+
     def GetButton(name) -> tkinter.Button :
         return Util.__btnList[name]
 
-    __lblList = {}
-    def AddLabel(name : str, root : tkinter.Tk, text : str) -> None :
+    __lblList = {str : tkinter.Label}
+    def AddLabel(name : str, root : tkinter.Tk, text : str) -> tkinter.Label :
         Util.__lblList[name] = Util.__SetLabelInWindow(root, text)
+        return Util.__lblList[name]
+
     def GetLabel(name) -> tkinter.Label :
         return Util.__lblList[name]
 
-    __imgList = {}
-    def AddImage(name : str, root : tkinter.Tk, size : Vector2, path : str) -> None :
+    __entryList = {str : tkinter.Entry}
+    def AddEntry(name : str, root : tkinter.Tk, text : str) -> tkinter.Entry:
+        Util.__entryList[name] = Util.__SetEntryInWindow(root, text)
+        return Util.__entryList[name]
+    def __SetEntryInWindow(window : tkinter.Tk, text : str) -> tkinter.Entry:
+        entry = tkinter.Entry(window)
+        entry.insert(0, text)
+        return entry
+    def GetEntry(name) -> tkinter.Entry:
+        return Util.__entryList[name]
+
+    __frameList = {str : tkinter.Frame}
+    def AddFrame(name : str, root : tkinter.Tk, size : Vector2, position : Vector2) -> tkinter.Frame:
+        Util.__frameList[name] = Util.__SetFrameInWindow(root, size, position)
+        return Util.__frameList[name]
+    def __SetFrameInWindow(window : tkinter.Tk, size : Vector2, position : Vector2) -> tkinter.Frame:
+        frame = tkinter.Frame(window)
+        frame.place(x=position.x, y=position.y, width=size.x, height=size.y)
+        return frame
+    def GetFrame(name) -> tkinter.Frame:
+        return Util.__frameList[name]
+
+    __scrollBarList = {str : tkinter.Scrollbar}
+    def AddScrollBar(name : str, root : tkinter.Tk, size : Vector2, position : Vector2, orient : str) -> tkinter.Scrollbar:
+        Util.__scrollBarList[name] = Util.__SetScrollBarInWindow(root, size, position, orient)
+        return Util.__scrollBarList[name]
+    def __SetScrollBarInWindow(window : tkinter.Tk, size : Vector2, position : Vector2, orient : str) -> tkinter.Scrollbar:
+        scrollBar = tkinter.Scrollbar(window, orient=orient)
+        scrollBar.place(x=position.x, y=position.y, width=size.x, height=size.y)
+        return scrollBar
+    def GetScrollBar(name) -> tkinter.Scrollbar:
+        return Util.__scrollBarList[name]
+
+    __listBoxList = {str : tkinter.Listbox}
+    def AddListBox(name : str, root : tkinter.Tk, size : Vector2, position : Vector2, scrollBar : tkinter.Scrollbar) -> tkinter.Listbox:
+        Util.__listBoxList[name] = Util.__SetListBoxInWindow(root, size, position, scrollBar)
+        return Util.__listBoxList[name]
+    def __SetListBoxInWindow(window : tkinter.Tk, size : Vector2, position : Vector2, scrollBar : tkinter.Scrollbar) -> tkinter.Listbox:
+        listBox = tkinter.Listbox(window, yscrollcommand=scrollBar.set)
+        listBox.place(x=position.x, y=position.y, width=size.x, height=size.y)
+        scrollBar.config(command=listBox.yview)
+        return listBox
+    def GetListBox(name) -> tkinter.Listbox:
+        return Util.__listBoxList[name]
+
+    __imgList = {str: tkinter.Image}
+    def AddImage(name : str, root : tkinter.Tk, size : Vector2, path : str) -> tkinter.Image :
         Util.__imgList[name] = Util.__SetImageInWindow(root, size, path)
+        return Util.__imgList[name]
     def GetImage(name) -> tkinter.Label :
         return Util.__imgList[name]
-
-    def ShowMessage(msgtitle : str, msgmessage : str):
-        tkinter.messagebox.showinfo(title=msgtitle, message=msgmessage)
 
     def SetWindow(title : str) -> tkinter.Tk:
         window = tkinter.Tk()

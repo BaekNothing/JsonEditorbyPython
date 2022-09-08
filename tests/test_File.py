@@ -29,14 +29,13 @@ def test_CheckFileExist(setup) :
     assert File.CheckFileExist(os.getcwd() + "\\test\\test.txt") == True
 
 def test_SaveFile(setup) :
-    assert File.SaveFile(os.getcwd() + "\\test\\test.txt", "test") == True
+    File.SaveFile(os.getcwd() + "\\test\\test.txt", "test") == True
 
 def test_ReadFile(setup) :
     assert File.ReadFile(os.getcwd() + "\\test\\test.txt") == "test"
 
 def test_SaveCapturedImage(setup) :
-    assert File.SaveCapturedImage(os.getcwd() + "\\test.png", Image.new("RGB", (100, 100))) == True
+    File.SaveCapturedImage(os.getcwd() + "\\test.png", Image.new("RGB", (100, 100))) == True
 
 def test_GetFilesInDir(setup) :
     assert File.GetFilesInDir(os.getcwd()) != []
-

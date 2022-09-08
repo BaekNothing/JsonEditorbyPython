@@ -9,40 +9,29 @@ def CheckDirExist(dir : str) -> bool :
 def CheckFileExist(file : str) -> bool :
     return os.path.isfile(file)
 
-def SaveFile(filePath : str, content : str) -> bool :
-    try:
-        with open(filePath, "w") as file:
-            file.write(content)
-        return True
-    except:
-        return False
+def SaveFile(filePath : str, content : str) :
+    with open(filePath, "a", encoding='utf-8') as file:
+        file.write(content)
 
 def ReadFile(filePath : str) -> str :
-    try:
-        with open(filePath, "r") as file:
-            return file.read()
-    except:
-        return ""
+    with open(filePath, "r", encoding='utf-8') as file:
+        return file.read()
 
-def SaveCapturedImage(filePath : str, image : Image) -> bool :
-    try:
-        image.save(filePath)
-        return True
-    except:
-        return False
+def SaveCapturedImage(filePath : str, image : Image) :
+    image.save(filePath)
 
 def GetFilesInDir(dir : str) -> list :
-    try:
-        return os.listdir(dir)
-    except:
-        return []
+    return os.listdir(dir)
 
 def ShowFileDialog() -> os.__file__:
+    try :
         return tkinter.filedialog.askopenfilename(
             title="Open File",
             initialdir=os.getcwd(),
             filetypes=[("All Files", "*.*"), ("Python Files", "*.py")]
         )
+    except FileNotFoundError :
+        return None
 
 def ShowSaveFileDialog(file : os.__file__) -> os.__file__ : 
     return tkinter.filedialog.asksaveasfile(
