@@ -65,13 +65,18 @@ class Util :
         return Util.__scrollBarList[name]
 
     __textList = {str : tkinter.Text}
-    def AddText(name : str, root : tkinter.Tk, size : Vector2, position : Vector2, scrollBar : tkinter.Scrollbar) -> tkinter.Text:
-        Util.__textList[name] = Util.__SetTextInWindow(root, size, position, scrollBar)
+    def AddText(name : str, root : tkinter.Tk, size : Vector2, position : Vector2, vertical_Scrollbar : tkinter.Scrollbar, horizontal_Scrollbar : tkinter.Scrollbar) -> tkinter.Text:
+        Util.__textList[name] = Util.__SetTextInWindow(root, size, position, vertical_Scrollbar, horizontal_Scrollbar)
         return Util.__textList[name]
-    def __SetTextInWindow(window : tkinter.Tk, size : Vector2, position : Vector2, scrollBar : tkinter.Scrollbar) -> tkinter.Text:
-        text = tkinter.Text(window, yscrollcommand=scrollBar.set)
+    def __SetTextInWindow(window : tkinter.Tk, size : Vector2, position : Vector2, vertical_Scrollbar : tkinter.Scrollbar, horizontal_Scrollbar : tkinter.Scrollbar) -> tkinter.Text:
+        text = tkinter.Text(window)
         text.place(x=position.x, y=position.y, width=size.x, height=size.y)
-        scrollBar.config(command=text.yview)
+        if(vertical_Scrollbar != None):
+            text.config(yscrollcommand=vertical_Scrollbar.set)
+            vertical_Scrollbar.config(command=text.yview)
+        if(horizontal_Scrollbar != None):
+            text.config(xscrollcommand=horizontal_Scrollbar.set)
+            horizontal_Scrollbar.config(command=text.xview)
         return text
     def GetText(name : str) -> tkinter.Text:
         return Util.__textList[name]
