@@ -1,12 +1,9 @@
 ﻿import json
-import numbers
-from tokenize import Number
-import pyautogui
-import time 
 import sys
 import os
-
 import tkinter
+
+import pyautogui
 
 sys.path.append("data")
 from data import pathInfo
@@ -21,8 +18,10 @@ window = None
 topFrame = None
 centerFrame = None
 centerScroll = None
-centerCanvas = None
+centerScrollText = None
 btmFrame = None 
+
+jsonStr = ""
 
 def Root() :
     global window
@@ -34,8 +33,8 @@ def SetupWindow(title : str) -> tkinter.Tk :
     window = Interface.Util.SetWindow(title)
     #Set window Size and Position
     screenWidth, screenHeight = pyautogui.size()
-    Interface.Util.SetWindowSizePosition(window, _windowSize, Interface.Vector2(screenWidth / 2 - _windowSize.x / 2, screenHeight / 2 - _windowSize.y / 2))
-    
+    Interface.Util.SetWindowSizePosition(window, _windowSize, Interface.Vector2(screenWidth / 2 - _windowSize.x / 2 + 200, screenHeight / 2 - _windowSize.y / 2))
+    window.resizable(False, False)
     #Set window transparent
     #window.attributes("-topmost", True)
     #window.attributes("-alpha", 0.3)
@@ -46,10 +45,10 @@ def SetupWindow(title : str) -> tkinter.Tk :
 def SetUI() :
     global window
     global topFrame
-    global centerFrame
     global centerScroll
-    global centerCanvas
+    global centerScrollText
     global btmFrame
+    global jsonStr
 
     topFrame = Interface.Util.AddFrame("topFrame", window, Interface.Vector2(640, 100), Interface.Vector2(0, 0))
     topFrame.pack(side=tkinter.TOP, fill=tkinter.X)
@@ -60,73 +59,43 @@ def SetUI() :
         side=tkinter.LEFT)
     Interface.Util.AddButton("close", topFrame, "close", func.Close).pack(
         side=tkinter.LEFT)
-    Interface.Util.AddButton("loadJson", topFrame, "loadJson", func.LoadJsonFile).pack(
+    Interface.Util.AddButton("loadJson", topFrame, "loadJson", lambda : {func.LoadJsonFile(centerScrollText)}).pack(
+        side=tkinter.LEFT)
+    Interface.Util.AddButton("saveJson", topFrame, "saveJson", lambda : func.SaveJsonFile(jsonStr)).pack(
         side=tkinter.LEFT)
     Interface.Util.AddImage("image", topFrame, Interface.Vector2(50, 50), "data/image/icon.png").pack(
         side=tkinter.LEFT)
 
-    centerFrame = Interface.Util.AddFrame("frameCenter", window, Interface.Vector2(640, 380), Interface.Vector2(0, 0))
-    centerFrame.configure(background="green")
-    centerFrame.pack(side=tkinter.TOP)
+    centerFrame = Interface.Util.AddFrame("centerFrame", window, Interface.Vector2(640, 390), Interface.Vector2(0, 100))
+    centerFrame.pack(side=tkinter.TOP, fill=tkinter.X)
 
-    centerScroll = Interface.Util.AddScrollBar('centerScroll', centerFrame, Interface.Vector2(30, 380), Interface.Vector2(0, 0), 'vertical')
-    centerScroll.pack(side=tkinter.LEFT, fill=tkinter.Y)
-    centerCanvas = Interface.Util.AddCanvas('centerCanvas', centerFrame, Interface.Vector2(320, 380), Interface.Vector2(0, 0))
-    centerCanvas.pack(side=tkinter.LEFT)
-    centerCanvas.configure(scrollregion=centerCanvas.bbox("all"))
-    centerCanvas.configure(yscrollcommand=centerScroll.set)    
+    centerScroll = Interface.Util.AddScrollBar("centerScroll", centerFrame, Interface.Vector2(640, 390), Interface.Vector2(0, 0), tkinter.VERTICAL)
+    centerScroll.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 
-    centerScroll.config(command=centerCanvas.yview)
-    
-    
-    func.JsonToLables(
-        centerCanvas,
-        JsonParser.SetJsonDataFromFile("./tests/test.json"),
-        0,0)
+    centerScrollText = Interface.Util.AddText("centerScrollText", centerFrame, Interface.Vector2(640, 390), Interface.Vector2(0, 0), centerScroll)
+    centerScrollText.pack(side=tkinter.TOP, fill=tkinter.X)
 
-    # btmFrame = Interface.Util.AddFrame("frameBtm", window, Interface.Vector2(640, 100), Interface.Vector2(0, 380))
-    # btmFrame.pack(side=tkinter.BOTTOM, fill=tkinter.X, expand=False)
-    # Interface.Util.AddLabel("btmLabel", btmFrame, "btmLabelTest").pack(side=tkinter.LEFT)
+    #centerScrollText.configure(state="disabled")
+
 
 class func :
-    def LoadJsonFile() :
-        global centerCanvas
+    def LoadJsonFile(Text: tkinter.Text):
+        global jsonStr
         jsonFile = File.ShowFileDialog()
         if (jsonFile != None) :
-            jsonObject=  JsonParser.SetJsonDataFromFile(jsonFile)
-            height = func.JsonToLables(centerCanvas, jsonObject, 0, 0)
-            #resize centerCanvas
-            centerCanvas.configure(scrollregion=centerCanvas.bbox("all"))
-            centerCanvas.config(height=height * 20)
-            
-
-    #make dict to Labels 
-    #like this : 
-    # key : value
-    # key : [list]
-    # key : {
-    #  key : value}
-
-    def JsonToLables(window : tkinter.Canvas, jObject : json, row : numbers, column : numbers) -> numbers:
-        for key in jObject.keys() :
-            if (isinstance(jObject[key], dict)) :
-                Interface.Util.AddLabel(key, window, key).grid(row=row, column=column)
-                row += 1
-                row = func.JsonToLables(window, jObject[key], row, column + 1)
-            elif (isinstance(jObject[key], list)) :
-                Interface.Util.AddLabel(key, window, key).grid(row=row, column=column)
-                row += 1
-                for value in jObject[key] :
-                    if (isinstance(value, dict)) :
-                        row = func.JsonToLables(window, value, row, column + 1)
-                    else :
-                        Interface.Util.AddLabel(key, window, value).grid(row=row, column=column + 1)
-                        row += 1
-            else :
-                Interface.Util.AddLabel(key, window, key).grid(row=row, column=column)
-                Interface.Util.AddLabel(key, window, jObject[key]).grid(row=row, column=column + 1)
-                row += 1
-        return row
+            jsonStr = JsonParser.MakeJsonToString(
+                JsonParser.SetJsonDataFromFile(jsonFile))
+            Text.configure(state="normal")
+            Text.delete("1.0", tkinter.END)
+            Text.insert(tkinter.END, jsonStr)
+            Text.configure(state="disabled")
+    
+    def SaveJsonFile(jsonStr : str) :
+        jsonStr = jsonStr.replace("\'", "\"")
+        targetFile = File.ShowSaveFileDialog()
+        if (targetFile != None) :
+            targetFile.write(jsonStr)
+            targetFile.close()
 
     def Restart() :
         python = sys.executable

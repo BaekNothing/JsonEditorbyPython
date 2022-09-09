@@ -1,5 +1,6 @@
 ﻿import os 
 import tkinter
+import tkinter.filedialog
 
 from PIL import Image
 
@@ -33,10 +34,9 @@ def ShowFileDialog() -> os.__file__:
     except FileNotFoundError :
         return None
 
-def ShowSaveFileDialog(file : os.__file__) -> os.__file__ : 
+def ShowSaveFileDialog() -> os.__file__ : 
     return tkinter.filedialog.asksaveasfile(
         title="Save File",
         initialdir=os.getcwd(),
-        initialfile=file,
         filetypes=[("All Files", "*.*"), ("Python Files", "*.py")]
     )

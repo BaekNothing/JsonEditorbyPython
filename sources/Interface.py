@@ -64,16 +64,17 @@ class Util :
     def GetScrollBar(name) -> tkinter.Scrollbar:
         return Util.__scrollBarList[name]
 
-    __canvasList = {str : tkinter.Canvas}
-    def AddCanvas(name : str, root : tkinter.Tk, size : Vector2, position : Vector2) -> tkinter.Canvas:
-        Util.__canvasList[name] = Util.__SetCanvasInWindow(root, size, position)
-        return Util.__canvasList[name]
-    def __SetCanvasInWindow(window : tkinter.Tk, size : Vector2, position : Vector2) -> tkinter.Canvas:
-        canvas = tkinter.Canvas(window, bg='#FFFFFF', width=size.x, height=size.y, scrollregion=(0, 0, 100, 100))
-        canvas.place(x=position.x, y=position.y, width=size.x, height=size.y)
-        return canvas
-    def GetCanvas(name) -> tkinter.Canvas:
-        return Util.__canvasList[name]
+    __textList = {str : tkinter.Text}
+    def AddText(name : str, root : tkinter.Tk, size : Vector2, position : Vector2, scrollBar : tkinter.Scrollbar) -> tkinter.Text:
+        Util.__textList[name] = Util.__SetTextInWindow(root, size, position, scrollBar)
+        return Util.__textList[name]
+    def __SetTextInWindow(window : tkinter.Tk, size : Vector2, position : Vector2, scrollBar : tkinter.Scrollbar) -> tkinter.Text:
+        text = tkinter.Text(window, yscrollcommand=scrollBar.set)
+        text.place(x=position.x, y=position.y, width=size.x, height=size.y)
+        scrollBar.config(command=text.yview)
+        return text
+    def GetText(name : str) -> tkinter.Text:
+        return Util.__textList[name]
 
     __imgList = {str: tkinter.Image}
     def AddImage(name : str, root : tkinter.Tk, size : Vector2, path : str) -> tkinter.Image :

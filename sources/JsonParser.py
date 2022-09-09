@@ -5,8 +5,12 @@ import JsonParser
 import File
 
 __jsonData = {}
+__jsonString = ""
 
-def SetJsonData(json) -> dict:
+def GetJsonString() -> str:
+    return __jsonString
+
+def SetJsonData(json) -> json:
     global __jsonData
     __jsonData = json
     return __jsonData
@@ -16,11 +20,16 @@ def SetJsonDataFromFile(path : str) -> json:
     __jsonData = JsonParser.ValueToJson(File.ReadFile(path))
     return __jsonData
 
-def ValueToJson(value : any) -> json:
-    return json.loads(str(value))
+def MakeJsonToString(inputJson : json) -> str:
+    __jsonString = json.dumps(inputJson, indent=4)
+    return __jsonString
 
-def GetJsonkeys(json : json) -> list:
-    return list(json.keys())
+def ValueToJson(value : any) -> json:
+    value = str(value).replace("\'", "\"")
+    return json.loads(value)
+
+def GetJsonkeys(inputJson : json) -> list:
+    return list(inputJson.keys())
 
 def GetJsonValue(key : str) -> json:
     return __jsonData[key]
