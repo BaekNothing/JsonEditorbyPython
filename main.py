@@ -1,4 +1,6 @@
-﻿import json
+﻿from cProfile import label
+from cgitb import text
+import json
 import sys
 import os
 import tkinter
@@ -22,6 +24,7 @@ centerScrollText = None
 btmFrame = None 
 
 jsonStr = ""
+labelList = []
 
 def Root() :
     global window
@@ -61,7 +64,7 @@ def SetUI() :
         side=tkinter.LEFT)
     Interface.Util.AddButton("loadJson", topFrame, "loadJson", lambda : {func.LoadJsonFile(centerScrollText)}).pack(
         side=tkinter.LEFT)
-    Interface.Util.AddButton("saveJson", topFrame, "saveJson", lambda : func.SaveJsonFile(jsonStr)).pack(
+    Interface.Util.AddButton("saveJson", topFrame, "saveJson", lambda : func.SaveJsonFile()).pack(
         side=tkinter.LEFT)
     Interface.Util.AddImage("image", topFrame, Interface.Vector2(50, 50), "data/image/icon.png").pack(
         side=tkinter.LEFT)
@@ -85,16 +88,78 @@ class func :
         if (jsonFile != None) :
             jsonStr = JsonParser.MakeJsonToString(
                 JsonParser.SetJsonDataFromFile(jsonFile))
-            Text.configure(state="normal")
-            Text.delete("1.0", tkinter.END)
-            Text.insert(tkinter.END, jsonStr)
-            Text.configure(state="disabled")
+            splitedStr = jsonStr.split("\n")
+            func.AddLabelToTextByLine(Text, 0, splitedStr)
+
+    def AddLabelToTextByLine(Text: tkinter.Text, line : int, jsonStr : list) :
+        global labelList
+        Text.delete("1.0", tkinter.END)
+        labelList.clear()
+        for eachLine in jsonStr : 
+            func.EachLineToTkinterObject(Text, line, eachLine)
+            line += 1
+        
+    def EachLineToTkinterObject(Text: tkinter.Text, line : int, eachLine : str):
+        if (eachLine.__contains__(":")) :
+            if (eachLine.__contains__("{") or eachLine.__contains__("[")) :
+                func.MakeNewLableInText(Text, line, eachLine)
+                Text.insert(tkinter.END, "\n")
+            else :
+                key, value = eachLine.split(":")
+                func.MakeNewLableInText(Text, line, key + ":")
+                func.MakeNewEntryInText(Text, line, value)
+                Text.insert(tkinter.END, "\n")
+        else : 
+            if (eachLine.__contains__("{") or eachLine.__contains__("}") or 
+                eachLine.__contains__("[") or eachLine.__contains__("]")) :
+                func.MakeNewLableInText(Text, line, eachLine)
+                Text.insert(tkinter.END, "\n")
+            else :
+                func.MakeNewEntryInText(Text, line, eachLine)
+                Text.insert(tkinter.END, "\n")
+            
+
+    def MakeNewLableInText(Text: tkinter.Text, line : int, eachLine : str):
+        global labelList
+        newLabel = Interface.Util.AddLabel("label" + str(line), Text, eachLine)
+        newLabel.pack(side=tkinter.TOP, fill=tkinter.X)
+        labelList.append(newLabel)
+        Text.configure(state="normal")
+        Text.window_create(tkinter.END, window=newLabel)
+
+    def MakeNewEntryInText(Text: tkinter.Text, line : int, eachLine : str) :
+        global labelList
+        newEntry = Interface.Util.AddEntry("entry" + str(line), Text, eachLine)
+        newEntry.pack(side=tkinter.TOP, fill=tkinter.X)
+        labelList.append(newEntry)
+        Text.configure(state="normal")
+        Text.window_create(tkinter.END, window=newEntry)
+
+    def LabellistToString(labelList : list) -> str :
+        str = ""
+        for obj in labelList :
+            if type(obj) is tkinter.Label :
+                str += obj.cget("text")
+            elif type(obj) is tkinter.Entry :
+                str += obj.get()
+            str += "\n"
+        return str
     
-    def SaveJsonFile(jsonStr : str) :
-        jsonStr = jsonStr.replace("\'", "\"")
+    def SaveJsonFile() :
+        global labelList
+        global jsonStr
+        global centerScrollText
+
+        newjsonStr = func.LabellistToString(labelList).replace(" ", "")
+        try :
+            json.loads(newjsonStr)
+        except ValueError as e :
+            print(newjsonStr, "is not json format")
+            func.AddLabelToTextByLine(centerScrollText, 0, jsonStr.split("\n"))
+            return
         targetFile = File.ShowSaveFileDialog()
         if (targetFile != None) :
-            targetFile.write(jsonStr)
+            targetFile.write(newjsonStr)
             targetFile.close()
 
     def Restart() :
