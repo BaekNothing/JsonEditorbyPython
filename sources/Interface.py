@@ -1,14 +1,11 @@
 ﻿import os
 
 import tkinter
-import tkinter.messagebox
-import tkinter.filedialog
-import tkinter.simpledialog
-import tkinter.colorchooser
-import tkinter.font
-import tkinter.ttk
-import tkinter.scrolledtext
-import unittest
+from tkinter import *
+from tkinter import ttk
+from tkinter import filedialog
+from tkinter import messagebox
+
 
 from PIL import Image, ImageTk
 
@@ -67,17 +64,16 @@ class Util :
     def GetScrollBar(name) -> tkinter.Scrollbar:
         return Util.__scrollBarList[name]
 
-    __listBoxList = {str : tkinter.Listbox}
-    def AddListBox(name : str, root : tkinter.Tk, size : Vector2, position : Vector2, scrollBar : tkinter.Scrollbar) -> tkinter.Listbox:
-        Util.__listBoxList[name] = Util.__SetListBoxInWindow(root, size, position, scrollBar)
-        return Util.__listBoxList[name]
-    def __SetListBoxInWindow(window : tkinter.Tk, size : Vector2, position : Vector2, scrollBar : tkinter.Scrollbar) -> tkinter.Listbox:
-        listBox = tkinter.Listbox(window, yscrollcommand=scrollBar.set)
-        listBox.place(x=position.x, y=position.y, width=size.x, height=size.y)
-        scrollBar.config(command=listBox.yview)
-        return listBox
-    def GetListBox(name) -> tkinter.Listbox:
-        return Util.__listBoxList[name]
+    __canvasList = {str : tkinter.Canvas}
+    def AddCanvas(name : str, root : tkinter.Tk, size : Vector2, position : Vector2) -> tkinter.Canvas:
+        Util.__canvasList[name] = Util.__SetCanvasInWindow(root, size, position)
+        return Util.__canvasList[name]
+    def __SetCanvasInWindow(window : tkinter.Tk, size : Vector2, position : Vector2) -> tkinter.Canvas:
+        canvas = tkinter.Canvas(window, bg='#FFFFFF', width=size.x, height=size.y, scrollregion=(0, 0, 100, 100))
+        canvas.place(x=position.x, y=position.y, width=size.x, height=size.y)
+        return canvas
+    def GetCanvas(name) -> tkinter.Canvas:
+        return Util.__canvasList[name]
 
     __imgList = {str: tkinter.Image}
     def AddImage(name : str, root : tkinter.Tk, size : Vector2, path : str) -> tkinter.Image :

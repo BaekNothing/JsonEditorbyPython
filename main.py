@@ -20,6 +20,8 @@ _windowSize = Interface.Vector2(640, 490)
 window = None
 topFrame = None
 centerFrame = None
+centerScroll = None
+centerCanvas = None
 btmFrame = None 
 
 def Root() :
@@ -45,6 +47,8 @@ def SetUI() :
     global window
     global topFrame
     global centerFrame
+    global centerScroll
+    global centerCanvas
     global btmFrame
 
     topFrame = Interface.Util.AddFrame("topFrame", window, Interface.Vector2(640, 100), Interface.Vector2(0, 0))
@@ -63,20 +67,66 @@ def SetUI() :
 
     centerFrame = Interface.Util.AddFrame("frameCenter", window, Interface.Vector2(640, 380), Interface.Vector2(0, 0))
     centerFrame.configure(background="green")
-    centerFrame.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=True)
-    Interface.Util.AddLabel("labelCenter", centerFrame, "center").pack(side=tkinter.TOP)
+    centerFrame.pack(side=tkinter.TOP)
 
-    btmFrame = Interface.Util.AddFrame("frameBtm", window, Interface.Vector2(640, 100), Interface.Vector2(0, 380))
-    btmFrame.pack(side=tkinter.BOTTOM, fill=tkinter.X, expand=False)
-    Interface.Util.AddLabel("btmLabel", btmFrame, "btmLabelTest").pack(side=tkinter.LEFT)
+    centerScroll = Interface.Util.AddScrollBar('centerScroll', centerFrame, Interface.Vector2(30, 380), Interface.Vector2(0, 0), 'vertical')
+    centerScroll.pack(side=tkinter.LEFT, fill=tkinter.Y)
+    centerCanvas = Interface.Util.AddCanvas('centerCanvas', centerFrame, Interface.Vector2(320, 380), Interface.Vector2(0, 0))
+    centerCanvas.pack(side=tkinter.LEFT)
+    centerCanvas.configure(scrollregion=centerCanvas.bbox("all"))
+    centerCanvas.configure(yscrollcommand=centerScroll.set)    
+
+    centerScroll.config(command=centerCanvas.yview)
+    
+    
+    func.JsonToLables(
+        centerCanvas,
+        JsonParser.SetJsonDataFromFile("./tests/test.json"),
+        0,0)
+
+    # btmFrame = Interface.Util.AddFrame("frameBtm", window, Interface.Vector2(640, 100), Interface.Vector2(0, 380))
+    # btmFrame.pack(side=tkinter.BOTTOM, fill=tkinter.X, expand=False)
+    # Interface.Util.AddLabel("btmLabel", btmFrame, "btmLabelTest").pack(side=tkinter.LEFT)
 
 class func :
     def LoadJsonFile() :
-        global centerScrollFrame
+        global centerCanvas
         jsonFile = File.ShowFileDialog()
         if (jsonFile != None) :
             jsonObject=  JsonParser.SetJsonDataFromFile(jsonFile)
-            func.DictToLabels(centerScrollFrame, jsonObject, "", 0)
+            height = func.JsonToLables(centerCanvas, jsonObject, 0, 0)
+            #resize centerCanvas
+            centerCanvas.configure(scrollregion=centerCanvas.bbox("all"))
+            centerCanvas.config(height=height * 20)
+            
+
+    #make dict to Labels 
+    #like this : 
+    # key : value
+    # key : [list]
+    # key : {
+    #  key : value}
+
+    def JsonToLables(window : tkinter.Canvas, jObject : json, row : numbers, column : numbers) -> numbers:
+        for key in jObject.keys() :
+            if (isinstance(jObject[key], dict)) :
+                Interface.Util.AddLabel(key, window, key).grid(row=row, column=column)
+                row += 1
+                row = func.JsonToLables(window, jObject[key], row, column + 1)
+            elif (isinstance(jObject[key], list)) :
+                Interface.Util.AddLabel(key, window, key).grid(row=row, column=column)
+                row += 1
+                for value in jObject[key] :
+                    if (isinstance(value, dict)) :
+                        row = func.JsonToLables(window, value, row, column + 1)
+                    else :
+                        Interface.Util.AddLabel(key, window, value).grid(row=row, column=column + 1)
+                        row += 1
+            else :
+                Interface.Util.AddLabel(key, window, key).grid(row=row, column=column)
+                Interface.Util.AddLabel(key, window, jObject[key]).grid(row=row, column=column + 1)
+                row += 1
+        return row
 
     def Restart() :
         python = sys.executable
