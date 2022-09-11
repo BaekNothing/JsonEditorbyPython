@@ -1,10 +1,7 @@
-﻿from distutils.log import info
-import json
+﻿import json
 import sys
 import os
 import tkinter
-from turtle import width
-from matplotlib.hatch import VerticalHatch
 
 import pyautogui
 
@@ -78,6 +75,8 @@ def RenderJsonFrame() :
     global jsonFrame
     global centerScrollText
 
+    scrollWidth = 15
+
     jsonFrame = Interface.Util.AddFrame(
                     "jsonFrame", 
                     window, 
@@ -87,13 +86,13 @@ def RenderJsonFrame() :
     center_VerticalScroll = Interface.Util.AddScrollBar(
                                 "centerScroll", 
                                 jsonFrame, 
-                                Interface.Vector2(10, _windowSize.y), 
+                                Interface.Vector2(scrollWidth, _windowSize.y),
                                 Interface.Vector2(0, 0), tkinter.VERTICAL)
     
     center_HorizontalScroll = Interface.Util.AddScrollBar(
                                 "center_HorizontalScroll", 
                                 jsonFrame, 
-                                Interface.Vector2(_windowSize.x / 2, 10), 
+                                Interface.Vector2(_windowSize.x / 2, scrollWidth), 
                                 Interface.Vector2(0, 0), tkinter.HORIZONTAL)
 
     centerScrollText = Interface.Util.AddText(
@@ -106,61 +105,75 @@ def RenderJsonFrame() :
 
     
     jsonFrame.place(x=0, y=50, width=_windowSize.x / 2, height=_windowSize.y - 50)
-    centerScrollText.place(x=0, y=0, width=_windowSize.x / 2 - 10, height=_windowSize.y - 60)
-    center_VerticalScroll.place(x=_windowSize.x / 2 - 10, y=0, width=10, height=_windowSize.y - 50)
-    center_HorizontalScroll.place(x=0, y=_windowSize.y - 60, width=_windowSize.x / 2 - 10, height=10)
+    centerScrollText.place(x=0, y=0, width=_windowSize.x /
+                           2 - scrollWidth, height=_windowSize.y - (50 + scrollWidth))
+    center_VerticalScroll.place(
+        x=_windowSize.x / 2 - scrollWidth, y=0, width=scrollWidth, height=_windowSize.y - 50)
+    center_HorizontalScroll.place(
+        x=0, y=_windowSize.y - (50 + scrollWidth), width=_windowSize.x / 2 - scrollWidth, height=scrollWidth)
 
     jsonFrame.config(background="gray")
     centerScrollText.config(background="lightgray")
     centerScrollText.configure(state=tkinter.DISABLED)
 
-def SetUI() :
+def RenderInfoFrame() : 
     global _windowSize
     global window
     
     global infoFrame
     
+    scrollWidth = 15
+
+    infoFrame = Interface.Util.AddFrame(
+        "infoFrame",
+        window,
+        Interface.Vector2(_windowSize.x / 2, 390),
+        Interface.Vector2(_windowSize.x / 2, 0))
+
+    info_verticalScroll = Interface.Util.AddScrollBar(
+        "info_verticalScroll",
+        infoFrame,
+        Interface.Vector2(scrollWidth, 0),
+        Interface.Vector2(0, 0),
+        tkinter.VERTICAL)
+    info_horizontalScroll = Interface.Util.AddScrollBar(
+        "info_horizontalScroll",
+        infoFrame,
+        Interface.Vector2(0, scrollWidth),
+        Interface.Vector2(0, 0),
+        tkinter.HORIZONTAL)
+    infoScrollText = Interface.Util.AddText(
+        "infoScrollText",
+        infoFrame,
+        Interface.Vector2(640, 390),
+        Interface.Vector2(0, 0),
+        info_verticalScroll,
+        info_horizontalScroll)
+
+    infoFrame.place(x=_windowSize.x / 2, y=50,
+                    width=_windowSize.x / 2, height=_windowSize.y - 50)
+    infoScrollText.place(x=0, y=0, width=_windowSize.x /
+                         2 - scrollWidth, height=_windowSize.y - (50 + scrollWidth))
+    info_verticalScroll.place(x=_windowSize.x / 2 -
+                              scrollWidth, y=0, width=scrollWidth, height=_windowSize.y - 50)
+    info_horizontalScroll.place(
+        x=0, y=_windowSize.y - (50 + scrollWidth), width=_windowSize.x / 2 - scrollWidth, height=scrollWidth)
+
+    infoFrame.config(background="gray")
+    infoScrollText.config(background="lightyellow")
+    infoScrollText.configure(state=tkinter.DISABLED)
+
+def SetUI() :
+    global _windowSize
+    global window
+
     global btmFrame
     global jsonStr
     
     RenderTopFrame()
     RenderJsonFrame()    
+    RenderInfoFrame()
     
-    infoFrame = Interface.Util.AddFrame(
-                    "infoFrame", 
-                    window, 
-                    Interface.Vector2(_windowSize.x / 2, 390), 
-                    Interface.Vector2(_windowSize.x / 2, 0))
-    
-    info_verticalScroll = Interface.Util.AddScrollBar(
-                            "info_verticalScroll",
-                            infoFrame,
-                            Interface.Vector2(10, 0),
-                            Interface.Vector2(0, 0),
-                            tkinter.VERTICAL)
-    info_horizontalScroll = Interface.Util.AddScrollBar(
-                            "info_horizontalScroll",
-                            infoFrame,
-                            Interface.Vector2(0, 10),
-                            Interface.Vector2(0, 0),
-                            tkinter.HORIZONTAL)
-    infoScrollText = Interface.Util.AddText(
-                        "infoScrollText",
-                        infoFrame,
-                        Interface.Vector2(640, 390),
-                        Interface.Vector2(0, 0),
-                        info_verticalScroll,
-                        info_horizontalScroll)  
-    
-    
-    infoFrame.place(x=_windowSize.x / 2, y=50, width=_windowSize.x / 2, height=_windowSize.y - 50)
-    infoScrollText.place(x=_windowSize.x / 2, y=0, width=_windowSize.x / 2 - 10, height=_windowSize.y - 60)
-    info_verticalScroll.place(x=_windowSize.x - 10, y=0, width=10, height=_windowSize.y - 50)
-    info_horizontalScroll.place(x=_windowSize.x / 2, y=_windowSize.y - 60, width=_windowSize.x / 2 - 10, height=10)
-
-    infoFrame.config(background="gray")
-    infoScrollText.config(background="lightyellow")
-    infoScrollText.configure(state=tkinter.DISABLED)
     
 class func :
     def LoadJsonFile(Text: tkinter.Text):
