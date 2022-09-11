@@ -30,6 +30,7 @@ def Root() :
     SetUI()
     window.mainloop()
 
+
 def SetupWindow(title : str) -> tkinter.Tk :
     window = Interface.Util.SetWindow(title)
     screenWidth, screenHeight = pyautogui.size()
@@ -42,11 +43,8 @@ def SetupWindow(title : str) -> tkinter.Tk :
     window.configure(background="white")
     return window
 
-def RenderTopFrame() :
-    global _windowSize
-    global window
+def RenderTopFrame(_windowSize : Interface.Vector2, window : tkinter.Tk) :
     global topFrame
-
     topFrame = Interface.Util.AddFrame("topFrame", window, Interface.Vector2(640, 50), Interface.Vector2(0, 0))
     topFrame.grid(row=0, column=0, sticky=tkinter.NSEW)
 
@@ -64,10 +62,7 @@ def RenderTopFrame() :
         side=tkinter.LEFT)
     topFrame.place(x=0, y=0, width=_windowSize.x, height=50)
 
-def RenderJsonFrame() :
-    global _windowSize
-    global window
-    
+def RenderJsonFrame(_windowSize : Interface.Vector2, window : tkinter.Tk) :   
     global jsonFrame
     global centerScrollText
 
@@ -112,10 +107,7 @@ def RenderJsonFrame() :
     centerScrollText.config(background="lightgray")
     centerScrollText.configure(state=tkinter.DISABLED)
 
-def RenderInfoFrame() : 
-    global _windowSize
-    global window
-    
+def RenderInfoFrame(_windowSize : Interface.Vector2, window : tkinter.Tk) : 
     global infoFrame
     
     scrollWidth = 15
@@ -125,7 +117,6 @@ def RenderInfoFrame() :
         window,
         Interface.Vector2(_windowSize.x / 2, 390),
         Interface.Vector2(_windowSize.x / 2, 0))
-
     info_verticalScroll = Interface.Util.AddScrollBar(
         "info_verticalScroll",
         infoFrame,
@@ -146,29 +137,30 @@ def RenderInfoFrame() :
         info_verticalScroll,
         info_horizontalScroll)
 
-    infoFrame.place(x=_windowSize.x / 2, y=50,
-                            width=_windowSize.x / 2, height=_windowSize.y - 50)
-    infoScrollText.place(x=0, y=0, 
-                            width=_windowSize.x / 2 - scrollWidth, height=_windowSize.y - (50 + scrollWidth))
-    info_verticalScroll.place (x=_windowSize.x / 2 - scrollWidth, y=0, 
-                            width=scrollWidth, height=_windowSize.y - 50)
-    info_horizontalScroll.place(x=0, y=_windowSize.y - (50 + scrollWidth), 
-                            width=_windowSize.x / 2 - scrollWidth, height=scrollWidth)
+    infoFrame.place(x=_windowSize.x / 2, y=50, width=_windowSize.x / 2, height=_windowSize.y - 50)
+    infoScrollText.place(x=0, y=0,  width=_windowSize.x / 2 - scrollWidth, height=_windowSize.y - (50 + scrollWidth))
+    info_verticalScroll.place(x=_windowSize.x / 2 - scrollWidth, y=0, width=scrollWidth, height=_windowSize.y - 50)
+    info_horizontalScroll.place(x=0, y=_windowSize.y - (50 + scrollWidth), width=_windowSize.x / 2 - scrollWidth, height=scrollWidth)
 
     infoFrame.config(background="gray")
     infoScrollText.config(background="lightyellow")
     infoScrollText.configure(state=tkinter.DISABLED)
 
+    textInfo = tkinter.StringVar()
+    textInfo.set("infoLabel")
+    Interface.Util.MakeNewLableInText(infoScrollText, 0, textInfo)
+
 def SetUI() :
     global _windowSize
     global window
+    global topFrame
 
     global btmFrame
     global jsonStr
     
-    RenderTopFrame()
-    RenderJsonFrame()    
-    RenderInfoFrame()
+    RenderTopFrame(_windowSize, window)
+    RenderJsonFrame(_windowSize, window)
+    RenderInfoFrame(_windowSize, window)
     
     
 class func :

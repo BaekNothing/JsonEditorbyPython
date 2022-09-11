@@ -18,7 +18,10 @@ class Util :
         return tkinter.Button(window, text=text, command=command)
 
     def AddLabel(name : str, window : tkinter.Tk, text : str) -> tkinter.Label :
-        return tkinter.Label(window, text=text)
+        if(type(text) == tkinter.StringVar):
+            return tkinter.Label(window, textvariable=text)
+        else :
+            return tkinter.Label(window, text=text)
 
     def AddEntry(name : str, window : tkinter.Tk, text : str) -> tkinter.Entry:
         entry = tkinter.Entry(window)
@@ -72,42 +75,41 @@ class Util :
         window.geometry(f"{size.x}x{size.y}+{('%.0f'%position.x)}+{'%.0f'%position.y}")
 
     # Make Json to Labels in Text
-    def AddLabelToTextByLine(Text: tkinter.Text, line : int, jsonStr : list, labelList : list) :
+    def AddLabelToTextByLine(Text: tkinter.Text, jsonStr : list, labelList : list) :
         Text.delete("1.0", tkinter.END)
         labelList.clear()
         for eachLine in jsonStr : 
-            Util.EachLineToTkinterObject(Text, line, eachLine, labelList)
-            line += 1
+            Util.EachLineToTkinterObject(Text, eachLine, labelList)
         Text.configure(state=tkinter.DISABLED)
         
-    def EachLineToTkinterObject(Text: tkinter.Text, line : int, eachLine : str, labelList : list):
+    def EachLineToTkinterObject(Text: tkinter.Text, eachLine : str, labelList : list):
         if (eachLine.__contains__(":")) :
             if (eachLine.__contains__("{") or eachLine.__contains__("[")) :
-                labelList.append(Util.MakeNewLableInText(Text, line, eachLine))
+                labelList.append(Util.MakeNewLableInText(Text, eachLine))
                 Text.insert(tkinter.END, "\n")
             else :
                 key, value = eachLine.split(":")
-                labelList.append(Util.MakeNewLableInText(Text, line, key + ":"))
-                labelList.append(Util.MakeNewEntryInText(Text, line, value))
+                labelList.append(Util.MakeNewLableInText(Text, key + ":"))
+                labelList.append(Util.MakeNewEntryInText(Text, value))
                 Text.insert(tkinter.END, "\n")
         else : 
             if (eachLine.__contains__("{") or eachLine.__contains__("}") or 
                 eachLine.__contains__("[") or eachLine.__contains__("]")) :
-                labelList.append(Util.MakeNewLableInText(Text, line, eachLine))
+                labelList.append(Util.MakeNewLableInText(Text, eachLine))
                 Text.insert(tkinter.END, "\n")
             else :
-                labelList.append(Util.MakeNewEntryInText(Text, line, eachLine))
+                labelList.append(Util.MakeNewEntryInText(Text, eachLine))
                 Text.insert(tkinter.END, "\n")
 
-    def MakeNewLableInText(Text: tkinter.Text, line : int, eachLine : str) -> tkinter.Label:
-        newLabel = Util.AddLabel("label" + str(line), Text, eachLine)
+    def MakeNewLableInText(Text: tkinter.Text, eachLine : str) -> tkinter.Label:
+        newLabel = Util.AddLabel("label", Text, eachLine)
         newLabel.pack(side=tkinter.TOP, fill=tkinter.X)
         Text.configure(state="normal")
         Text.window_create(tkinter.END, window=newLabel)
         return newLabel
 
-    def MakeNewEntryInText(Text: tkinter.Text, line : int, eachLine : str) -> tkinter.Entry:
-        newEntry = Util.AddEntry("entry" + str(line), Text, eachLine)
+    def MakeNewEntryInText(Text: tkinter.Text, eachLine : str) -> tkinter.Entry:
+        newEntry = Util.AddEntry("entry", Text, eachLine)
         newEntry.pack(side=tkinter.TOP, fill=tkinter.X)
         Text.configure(state="normal")
         Text.window_create(tkinter.END, window=newEntry)
