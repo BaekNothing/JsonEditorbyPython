@@ -20,12 +20,18 @@ def SetJsonDataFromFile(path : str) -> json:
     __jsonData = JsonParser.ValueToJson(File.ReadFile(path))
     return __jsonData
 
+def CheckJsonAble(input : str) -> bool:
+    try:
+        json.loads(str(input))
+    except ValueError:
+        return False
+    return True
+
 def MakeJsonToString(inputJson : json) -> str:
     __jsonString = json.dumps(inputJson, indent=4)
     return __jsonString
 
 def ValueToJson(value : any) -> json:
-    value = str(value).replace("\'", "\"")
     return json.loads(value)
 
 def GetJsonkeys(inputJson : json) -> list:

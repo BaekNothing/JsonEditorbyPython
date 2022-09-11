@@ -39,10 +39,6 @@ def SetupWindow(title : str) -> tkinter.Tk :
         Interface.Vector2(screenWidth / 2 - _windowSize.x / 2 + 200, 
                         screenHeight / 2 - _windowSize.y / 2))
     window.resizable(False, False)
-    #Set window transparent
-    #window.attributes("-topmost", True)
-    #window.attributes("-alpha", 0.3)
-    #window.attributes("-transparentcolor", "white")
     window.configure(background="white")
     return window
 
@@ -151,13 +147,13 @@ def RenderInfoFrame() :
         info_horizontalScroll)
 
     infoFrame.place(x=_windowSize.x / 2, y=50,
-                    width=_windowSize.x / 2, height=_windowSize.y - 50)
-    infoScrollText.place(x=0, y=0, width=_windowSize.x /
-                         2 - scrollWidth, height=_windowSize.y - (50 + scrollWidth))
-    info_verticalScroll.place(x=_windowSize.x / 2 -
-                              scrollWidth, y=0, width=scrollWidth, height=_windowSize.y - 50)
-    info_horizontalScroll.place(
-        x=0, y=_windowSize.y - (50 + scrollWidth), width=_windowSize.x / 2 - scrollWidth, height=scrollWidth)
+                            width=_windowSize.x / 2, height=_windowSize.y - 50)
+    infoScrollText.place(x=0, y=0, 
+                            width=_windowSize.x / 2 - scrollWidth, height=_windowSize.y - (50 + scrollWidth))
+    info_verticalScroll.place (x=_windowSize.x / 2 - scrollWidth, y=0, 
+                            width=scrollWidth, height=_windowSize.y - 50)
+    info_horizontalScroll.place(x=0, y=_windowSize.y - (50 + scrollWidth), 
+                            width=_windowSize.x / 2 - scrollWidth, height=scrollWidth)
 
     infoFrame.config(background="gray")
     infoScrollText.config(background="lightyellow")
@@ -178,57 +174,14 @@ def SetUI() :
 class func :
     def LoadJsonFile(Text: tkinter.Text):
         global jsonStr
+        global labelList
+
         jsonFile = File.ShowFileDialog()
         if (jsonFile != None) :
             jsonStr = JsonParser.MakeJsonToString(
                 JsonParser.SetJsonDataFromFile(jsonFile))
             splitedStr = jsonStr.split("\n")
-            func.AddLabelToTextByLine(Text, 0, splitedStr)
-
-    def AddLabelToTextByLine(Text: tkinter.Text, line : int, jsonStr : list) :
-        global labelList
-        Text.delete("1.0", tkinter.END)
-        labelList.clear()
-        for eachLine in jsonStr : 
-            func.EachLineToTkinterObject(Text, line, eachLine)
-            line += 1
-        centerScrollText.configure(state=tkinter.DISABLED)
-        
-    def EachLineToTkinterObject(Text: tkinter.Text, line : int, eachLine : str):
-        if (eachLine.__contains__(":")) :
-            if (eachLine.__contains__("{") or eachLine.__contains__("[")) :
-                func.MakeNewLableInText(Text, line, eachLine)
-                Text.insert(tkinter.END, "\n")
-            else :
-                key, value = eachLine.split(":")
-                func.MakeNewLableInText(Text, line, key + ":")
-                func.MakeNewEntryInText(Text, line, value)
-                Text.insert(tkinter.END, "\n")
-        else : 
-            if (eachLine.__contains__("{") or eachLine.__contains__("}") or 
-                eachLine.__contains__("[") or eachLine.__contains__("]")) :
-                func.MakeNewLableInText(Text, line, eachLine)
-                Text.insert(tkinter.END, "\n")
-            else :
-                func.MakeNewEntryInText(Text, line, eachLine)
-                Text.insert(tkinter.END, "\n")
-            
-
-    def MakeNewLableInText(Text: tkinter.Text, line : int, eachLine : str):
-        global labelList
-        newLabel = Interface.Util.AddLabel("label" + str(line), Text, eachLine)
-        newLabel.pack(side=tkinter.TOP, fill=tkinter.X)
-        labelList.append(newLabel)
-        Text.configure(state="normal")
-        Text.window_create(tkinter.END, window=newLabel)
-
-    def MakeNewEntryInText(Text: tkinter.Text, line : int, eachLine : str) :
-        global labelList
-        newEntry = Interface.Util.AddEntry("entry" + str(line), Text, eachLine)
-        newEntry.pack(side=tkinter.TOP, fill=tkinter.X)
-        labelList.append(newEntry)
-        Text.configure(state="normal")
-        Text.window_create(tkinter.END, window=newEntry)
+            Interface.Util.AddLabelToTextByLine(Text, 0, splitedStr, labelList)
 
     def LabellistToString(labelList : list) -> str :
         str = ""
@@ -245,21 +198,22 @@ class func :
         global centerScrollText
 
         newjsonStr = func.LabellistToString(labelList).replace(" ", "")
-        try :
-            newJsonObject = json.loads(newjsonStr)
-        except ValueError as e :
+        if (JsonParser.CheckJsonAble(newjsonStr)) :
+            newJsonObject = JsonParser.ValueToJson(newjsonStr)
+            newjsonStr = JsonParser.MakeJsonToString(newJsonObject)
+            targetFile = File.ShowSaveFileDialog()
+            if (targetFile != None) :
+                targetFile.write(newjsonStr)
+                targetFile.close()
+        else :
             print(newjsonStr, "is not json format")
             func.AddLabelToTextByLine(centerScrollText, 0, jsonStr.split("\n"))
             return
-        newjsonStr = JsonParser.MakeJsonToString(newJsonObject)
-        targetFile = File.ShowSaveFileDialog()
-        if (targetFile != None) :
-            targetFile.write(newjsonStr)
-            targetFile.close()
 
     def Restart() :
         python = sys.executable
         os.execl(python, python, * sys.argv)
+        
     def Close() :
         global window
         Interface.Util.CloseWindow(window)

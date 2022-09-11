@@ -6,7 +6,6 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 
-
 from PIL import Image, ImageTk
 
 class Vector2:
@@ -15,60 +14,28 @@ class Vector2:
         self.y = y
     
 class Util :    
-    __btnList = {str : tkinter.Button}
-    def AddButton(name : str, root : tkinter.Tk, text : str, command) -> tkinter.Button :
-        Util.__btnList[name] = Util.__SetButtonInWindow(root, text, command)
-        return Util.__btnList[name]
+    def AddButton(name : str, window : tkinter.Tk, text : str, command) -> tkinter.Button :
+        return tkinter.Button(window, text=text, command=command)
 
-    def GetButton(name) -> tkinter.Button :
-        return Util.__btnList[name]
+    def AddLabel(name : str, window : tkinter.Tk, text : str) -> tkinter.Label :
+        return tkinter.Label(window, text=text)
 
-    __lblList = {str : tkinter.Label}
-    def AddLabel(name : str, root : tkinter.Tk, text : str) -> tkinter.Label :
-        Util.__lblList[name] = Util.__SetLabelInWindow(root, text)
-        return Util.__lblList[name]
-
-    def GetLabel(name) -> tkinter.Label :
-        return Util.__lblList[name]
-
-    __entryList = {str : tkinter.Entry}
-    def AddEntry(name : str, root : tkinter.Tk, text : str) -> tkinter.Entry:
-        Util.__entryList[name] = Util.__SetEntryInWindow(root, text)
-        return Util.__entryList[name]
-    def __SetEntryInWindow(window : tkinter.Tk, text : str) -> tkinter.Entry:
+    def AddEntry(name : str, window : tkinter.Tk, text : str) -> tkinter.Entry:
         entry = tkinter.Entry(window)
         entry.insert(0, text)
         return entry
-    def GetEntry(name) -> tkinter.Entry:
-        return Util.__entryList[name]
 
-    __frameList = {str : tkinter.Frame}
-    def AddFrame(name : str, root : tkinter.Tk, size : Vector2, position : Vector2) -> tkinter.Frame:
-        Util.__frameList[name] = Util.__SetFrameInWindow(root, size, position)
-        return Util.__frameList[name]
-    def __SetFrameInWindow(window : tkinter.Tk, size : Vector2, position : Vector2) -> tkinter.Frame:
+    def AddFrame(name : str, window : tkinter.Tk, size : Vector2, position : Vector2) -> tkinter.Frame:
         frame = tkinter.Frame(window)
         frame.place(x=position.x, y=position.y, width=size.x, height=size.y)
         return frame
-    def GetFrame(name) -> tkinter.Frame:
-        return Util.__frameList[name]
 
-    __scrollBarList = {str : tkinter.Scrollbar}
-    def AddScrollBar(name : str, root : tkinter.Tk, size : Vector2, position : Vector2, orient : str) -> tkinter.Scrollbar:
-        Util.__scrollBarList[name] = Util.__SetScrollBarInWindow(root, size, position, orient)
-        return Util.__scrollBarList[name]
-    def __SetScrollBarInWindow(window : tkinter.Tk, size : Vector2, position : Vector2, orient : str) -> tkinter.Scrollbar:
+    def AddScrollBar(name : str, window : tkinter.Tk, size : Vector2, position : Vector2, orient : str) -> tkinter.Scrollbar:
         scrollBar = tkinter.Scrollbar(window, orient=orient)
         scrollBar.place(x=position.x, y=position.y, width=size.x, height=size.y)
         return scrollBar
-    def GetScrollBar(name) -> tkinter.Scrollbar:
-        return Util.__scrollBarList[name]
 
-    __textList = {str : tkinter.Text}
-    def AddText(name : str, root : tkinter.Tk, size : Vector2, position : Vector2, vertical_Scrollbar : tkinter.Scrollbar, horizontal_Scrollbar : tkinter.Scrollbar) -> tkinter.Text:
-        Util.__textList[name] = Util.__SetTextInWindow(root, size, position, vertical_Scrollbar, horizontal_Scrollbar)
-        return Util.__textList[name]
-    def __SetTextInWindow(window : tkinter.Tk, size : Vector2, position : Vector2, vertical_Scrollbar : tkinter.Scrollbar, horizontal_Scrollbar : tkinter.Scrollbar) -> tkinter.Text:
+    def AddText(name : str, window : tkinter.Tk, size : Vector2, position : Vector2, vertical_Scrollbar : tkinter.Scrollbar, horizontal_Scrollbar : tkinter.Scrollbar) -> tkinter.Text:
         text = tkinter.Text(window)
         text.place(x=position.x, y=position.y, width=size.x, height=size.y)
         if(vertical_Scrollbar != None):
@@ -78,15 +45,15 @@ class Util :
             text.config(xscrollcommand=horizontal_Scrollbar.set)
             horizontal_Scrollbar.config(command=text.xview)
         return text
-    def GetText(name : str) -> tkinter.Text:
-        return Util.__textList[name]
 
-    __imgList = {str: tkinter.Image}
-    def AddImage(name : str, root : tkinter.Tk, size : Vector2, path : str) -> tkinter.Image :
-        Util.__imgList[name] = Util.__SetImageInWindow(root, size, path)
-        return Util.__imgList[name]
-    def GetImage(name) -> tkinter.Label :
-        return Util.__imgList[name]
+    def AddImage(name : str, window : tkinter.Tk, size : Vector2, path : str) -> tkinter.Image :
+        originImage = Image.open(path)
+        resizedImage = originImage.resize((size.x, size.y))
+        tkImage = ImageTk.PhotoImage(resizedImage) 
+        label = tkinter.Label(window, image=tkImage)
+        label.image = tkImage
+        label.place(x=0, y=0, width=size.x, height=size.y)
+        return label
 
     def SetWindow(title : str) -> tkinter.Tk:
         window = tkinter.Tk()
@@ -104,19 +71,44 @@ class Util :
     def SetWindowSizePosition(window : tkinter.Tk, size : Vector2, position : Vector2) :
         window.geometry(f"{size.x}x{size.y}+{('%.0f'%position.x)}+{'%.0f'%position.y}")
 
-    def __SetImageInWindow(window : tkinter.Tk, size : Vector2, path : str) -> tkinter.Label:
-        originImage = Image.open(path)
-        resizedImage = originImage.resize((size.x, size.y))
-        tkImage = ImageTk.PhotoImage(resizedImage) 
-        label = tkinter.Label(window, image=tkImage)
-        label.image = tkImage
-        label.place(x=0, y=0, width=size.x, height=size.y)
-        return label
+    # Make Json to Labels in Text
+    def AddLabelToTextByLine(Text: tkinter.Text, line : int, jsonStr : list, labelList : list) :
+        Text.delete("1.0", tkinter.END)
+        labelList.clear()
+        for eachLine in jsonStr : 
+            Util.EachLineToTkinterObject(Text, line, eachLine, labelList)
+            line += 1
+        Text.configure(state=tkinter.DISABLED)
+        
+    def EachLineToTkinterObject(Text: tkinter.Text, line : int, eachLine : str, labelList : list):
+        if (eachLine.__contains__(":")) :
+            if (eachLine.__contains__("{") or eachLine.__contains__("[")) :
+                labelList.append(Util.MakeNewLableInText(Text, line, eachLine))
+                Text.insert(tkinter.END, "\n")
+            else :
+                key, value = eachLine.split(":")
+                labelList.append(Util.MakeNewLableInText(Text, line, key + ":"))
+                labelList.append(Util.MakeNewEntryInText(Text, line, value))
+                Text.insert(tkinter.END, "\n")
+        else : 
+            if (eachLine.__contains__("{") or eachLine.__contains__("}") or 
+                eachLine.__contains__("[") or eachLine.__contains__("]")) :
+                labelList.append(Util.MakeNewLableInText(Text, line, eachLine))
+                Text.insert(tkinter.END, "\n")
+            else :
+                labelList.append(Util.MakeNewEntryInText(Text, line, eachLine))
+                Text.insert(tkinter.END, "\n")
 
-    def __SetLabelInWindow(window : tkinter.Tk, text : str) :
-        label = tkinter.Label(window, text=text)
-        return label
+    def MakeNewLableInText(Text: tkinter.Text, line : int, eachLine : str) -> tkinter.Label:
+        newLabel = Util.AddLabel("label" + str(line), Text, eachLine)
+        newLabel.pack(side=tkinter.TOP, fill=tkinter.X)
+        Text.configure(state="normal")
+        Text.window_create(tkinter.END, window=newLabel)
+        return newLabel
 
-    def __SetButtonInWindow(window : tkinter.Tk, text : str, command) -> tkinter.Button:
-        button = tkinter.Button(window, text=text, command=command)
-        return button
+    def MakeNewEntryInText(Text: tkinter.Text, line : int, eachLine : str) -> tkinter.Entry:
+        newEntry = Util.AddEntry("entry" + str(line), Text, eachLine)
+        newEntry.pack(side=tkinter.TOP, fill=tkinter.X)
+        Text.configure(state="normal")
+        Text.window_create(tkinter.END, window=newEntry)
+        return newEntry

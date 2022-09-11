@@ -22,20 +22,8 @@ def setup() :
     yield
     shutil.rmtree("test")
 
-def test_CheckDirExist(setup) :
-    assert File.CheckDirExist(os.getcwd() + "\\test") == True
+def test_ShowFileDialog(setup) :
+    File.ShowFileDialog() == os.getcwd() + "\\test\\test.txt"
 
-def test_CheckFileExist(setup) :
-    assert File.CheckFileExist(os.getcwd() + "\\test\\test.txt") == True
-
-def test_SaveFile(setup) :
-    File.SaveFile(os.getcwd() + "\\test\\test.txt", "test") == True
-
-def test_ReadFile(setup) :
-    assert File.ReadFile(os.getcwd() + "\\test\\test.txt") == "test"
-
-def test_SaveCapturedImage(setup) :
-    File.SaveCapturedImage(os.getcwd() + "\\test.png", Image.new("RGB", (100, 100))) == True
-
-def test_GetFilesInDir(setup) :
-    assert File.GetFilesInDir(os.getcwd()) != []
+def test_ShowSaveFileDialog(setup) :
+    assert File.ShowSaveFileDialog() == os.getcwd() + "\\test\\test.txt"
