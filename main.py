@@ -148,7 +148,7 @@ def RenderInfoFrame(_windowSize : Interface.Vector2, window : tkinter.Tk) :
 
     textInfo = tkinter.StringVar()
     textInfo.set("infoLabel")
-    Interface.Util.MakeNewLableInText(infoScrollText, 0, textInfo)
+    Interface.Util.MakeNewLableInText(infoScrollText, textInfo)
 
 def SetUI() :
     global _windowSize
@@ -173,7 +173,7 @@ class func :
             jsonStr = JsonParser.MakeJsonToString(
                 JsonParser.SetJsonDataFromFile(jsonFile))
             splitedStr = jsonStr.split("\n")
-            Interface.Util.AddLabelToTextByLine(Text, 0, splitedStr, labelList)
+            Interface.Util.AddLabelToTextByLine(Text, splitedStr, labelList, func.EntryAction)
 
     def LabellistToString(labelList : list) -> str :
         str = ""
@@ -199,8 +199,12 @@ class func :
                 targetFile.close()
         else :
             print(newjsonStr, "is not json format")
-            func.AddLabelToTextByLine(centerScrollText, 0, jsonStr.split("\n"))
+            Interface.Util.AddLabelToTextByLine(centerScrollText, jsonStr.split("\n"), labelList, func.EntryAction)
             return
+
+    def EntryAction(var : tkinter.StringVar) :
+        global labelList
+        print(JsonParser.CheckJsonAble(func.LabellistToString(labelList).replace(" ", "")))
 
     def Restart() :
         python = sys.executable
