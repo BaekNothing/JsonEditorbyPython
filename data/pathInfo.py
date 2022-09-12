@@ -1,3 +1,3 @@
 ﻿
-favIcon = "data/images/favicon.ico"
-icon = "data/images/icon.png"
+favIcon = "data/favicon.ico"
+icon = "data/icon.png"
