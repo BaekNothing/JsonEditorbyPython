@@ -22,8 +22,11 @@ def setup() :
     yield
     shutil.rmtree("test")
 
-def test_ShowFileDialog(setup) :
-    File.ShowFileDialog() == os.getcwd() + "\\test\\test.txt"
+def test_ReadFile(setup) :
+    assert File.ReadFile(os.getcwd() + "\\test\\test.txt") == "test"
+    assert File.ReadFile("notExist") == ""
 
-def test_ShowSaveFileDialog(setup) :
-    assert File.ShowSaveFileDialog() == os.getcwd() + "\\test\\test.txt"
+def test_SaveFile(setup) :
+    File.SaveFile(os.getcwd() + "\\test\\test.txt", "test")
+    assert File.ReadFile(os.getcwd() + "\\test\\test.txt") == "test"
+
