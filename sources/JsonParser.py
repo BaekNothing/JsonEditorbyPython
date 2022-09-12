@@ -1,8 +1,8 @@
-﻿import psutil
-import unittest
-import json
-import JsonParser
-import File
+﻿import json
+import sys
+
+sys.path.append("./")
+from . import File
 
 __jsonData = {}
 __jsonString = ""
@@ -17,7 +17,7 @@ def SetJsonData(json) -> json:
 
 def SetJsonDataFromFile(path : str) -> json:
     global __jsonData
-    __jsonData = JsonParser.ValueToJson(File.ReadFile(path))
+    __jsonData = ValueToJson(File.ReadFile(path))
     return __jsonData
 
 def CheckJsonAble(input : str) -> bool:

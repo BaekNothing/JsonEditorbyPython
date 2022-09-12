@@ -16,9 +16,15 @@ from sources import File
 _windowSize = Interface.Vector2(640, 490)
 window = None
 topFrame = None
+
 jsonFrame = None
+jsonText = None
+
 infoFrame = None
-centerScrollText = None
+infoAbleString = None
+infoFilePathString = None
+infoLogString = None
+
 btmFrame = None 
 
 jsonStr = ""
@@ -26,7 +32,7 @@ labelList = []
 
 def Root() :
     global window
-    window = SetupWindow("Test")    
+    window = SetupWindow("Simple Json Parser v1.0 - by.BAEK")    
     SetUI()
     window.mainloop()
 
@@ -47,24 +53,30 @@ def RenderTopFrame(_windowSize : Interface.Vector2, window : tkinter.Tk) :
     global topFrame
     topFrame = Interface.Util.AddFrame("topFrame", window, Interface.Vector2(640, 50), Interface.Vector2(0, 0))
     topFrame.grid(row=0, column=0, sticky=tkinter.NSEW)
+    
+    padxValue = 5
 
-    Interface.Util.AddLabel("title", topFrame, "titleTest").pack(
-        side=tkinter.LEFT)
-    Interface.Util.AddButton("restart", topFrame, "restart", func.Restart).pack(
-        side=tkinter.LEFT)
     Interface.Util.AddButton("close", topFrame, "close", func.Close).pack(
-        side=tkinter.LEFT)
-    Interface.Util.AddButton("loadJson", topFrame, "loadJson", lambda : {func.LoadJsonFile(centerScrollText)}).pack(
-        side=tkinter.LEFT)
+        side=tkinter.RIGHT, padx=padxValue)
+    Interface.Util.AddButton("restart", topFrame, "restart", func.Restart).pack(
+        side=tkinter.RIGHT, padx=padxValue)
+    
+        
+    Interface.Util.AddImage("image", topFrame, Interface.Vector2(50, 50), "./data/icon.png").pack(
+        side=tkinter.LEFT, padx=padxValue)
+    Interface.Util.AddButton("loadJson", topFrame, "loadJson", lambda : {func.LoadJsonFile(jsonText)}).pack(
+        side=tkinter.LEFT, padx=padxValue)
+    Interface.Util.AddButton("reset", topFrame, "reset", func.Reset).pack(
+        side=tkinter.LEFT, padx=padxValue)
     Interface.Util.AddButton("saveJson", topFrame, "saveJson", lambda : func.SaveJsonFile()).pack(
-        side=tkinter.LEFT)
-    Interface.Util.AddImage("image", topFrame, Interface.Vector2(50, 50), "data/image/icon.png").pack(
-        side=tkinter.LEFT)
+        side=tkinter.LEFT, padx=padxValue)
+    Interface.Util.AddButton("saveNewFile", topFrame, "saveNewFile", lambda : func.SaveNewFile()).pack(
+        side=tkinter.LEFT, padx=padxValue)
     topFrame.place(x=0, y=0, width=_windowSize.x, height=50)
 
 def RenderJsonFrame(_windowSize : Interface.Vector2, window : tkinter.Tk) :   
     global jsonFrame
-    global centerScrollText
+    global jsonText
 
     scrollWidth = 15
 
@@ -86,8 +98,8 @@ def RenderJsonFrame(_windowSize : Interface.Vector2, window : tkinter.Tk) :
                                 Interface.Vector2(_windowSize.x / 2, scrollWidth), 
                                 Interface.Vector2(0, 0), tkinter.HORIZONTAL)
 
-    centerScrollText = Interface.Util.AddText(
-                        "centerScrollText", 
+    jsonText = Interface.Util.AddText(
+                        "jsonText", 
                         jsonFrame, 
                         Interface.Vector2(320, 100), 
                         Interface.Vector2(0, 0), 
@@ -96,7 +108,7 @@ def RenderJsonFrame(_windowSize : Interface.Vector2, window : tkinter.Tk) :
 
     
     jsonFrame.place(x=0, y=50, width=_windowSize.x / 2, height=_windowSize.y - 50)
-    centerScrollText.place(x=0, y=0, width=_windowSize.x /
+    jsonText.place(x=0, y=0, width=_windowSize.x /
                            2 - scrollWidth, height=_windowSize.y - (50 + scrollWidth))
     center_VerticalScroll.place(
         x=_windowSize.x / 2 - scrollWidth, y=0, width=scrollWidth, height=_windowSize.y - 50)
@@ -104,12 +116,15 @@ def RenderJsonFrame(_windowSize : Interface.Vector2, window : tkinter.Tk) :
         x=0, y=_windowSize.y - (50 + scrollWidth), width=_windowSize.x / 2 - scrollWidth, height=scrollWidth)
 
     jsonFrame.config(background="gray")
-    centerScrollText.config(background="lightgray")
-    centerScrollText.configure(state=tkinter.DISABLED)
+    jsonText.config(background="lightgray")
+    jsonText.configure(state=tkinter.DISABLED)
 
 def RenderInfoFrame(_windowSize : Interface.Vector2, window : tkinter.Tk) : 
     global infoFrame
-    
+    global infoAbleString
+    global infoFilePathString
+    global infoLogString
+
     scrollWidth = 15
 
     infoFrame = Interface.Util.AddFrame(
@@ -143,12 +158,25 @@ def RenderInfoFrame(_windowSize : Interface.Vector2, window : tkinter.Tk) :
     info_horizontalScroll.place(x=0, y=_windowSize.y - (50 + scrollWidth), width=_windowSize.x / 2 - scrollWidth, height=scrollWidth)
 
     infoFrame.config(background="gray")
-    infoScrollText.config(background="lightyellow")
-    infoScrollText.configure(state=tkinter.DISABLED)
+    infoScrollText.config(background="white")
 
-    textInfo = tkinter.StringVar()
-    textInfo.set("infoLabel")
-    Interface.Util.MakeNewLableInText(infoScrollText, textInfo)
+    infoScrollText.insert(tkinter.END, "\n")
+    infoAbleString = tkinter.StringVar()
+    infoAbleString.set("Check results convertible to json : True")
+    Interface.Util.MakeNewLableInText(infoScrollText, infoAbleString).config(
+        background="white")
+    infoScrollText.insert(tkinter.END, "\n")
+    infoFilePathString = tkinter.StringVar()
+    infoFilePathString.set("File path : ")
+    Interface.Util.MakeNewLableInText(infoScrollText, infoFilePathString).config(
+        background="white")
+    infoScrollText.insert(tkinter.END, "\n")
+    infoLogString = tkinter.StringVar()
+    infoLogString.set("Log : ")
+    Interface.Util.MakeNewLableInText(infoScrollText, infoLogString).config(
+        background="white")
+
+    infoScrollText.configure(state=tkinter.DISABLED)
 
 def SetUI() :
     global _windowSize
@@ -167,13 +195,17 @@ class func :
     def LoadJsonFile(Text: tkinter.Text):
         global jsonStr
         global labelList
+        global infoFilePathString
 
         jsonFile = File.ShowFileDialog()
-        if (jsonFile != None) :
+        if (jsonFile != None and jsonFile != "") :
+            infoFilePathString.set("File path : " + jsonFile)
             jsonStr = JsonParser.MakeJsonToString(
                 JsonParser.SetJsonDataFromFile(jsonFile))
             splitedStr = jsonStr.split("\n")
             Interface.Util.AddLabelToTextByLine(Text, splitedStr, labelList, func.EntryAction)
+        else :
+            infoFilePathString.set("File path : ")
 
     def LabellistToString(labelList : list) -> str :
         str = ""
@@ -187,7 +219,30 @@ class func :
     def SaveJsonFile() :
         global labelList
         global jsonStr
-        global centerScrollText
+        global jsonText
+        global infoFilePathString
+        global infoLogString
+
+        if(jsonStr == "") : return
+
+        newjsonStr = func.LabellistToString(labelList).replace(" ", "")
+        if (JsonParser.CheckJsonAble(newjsonStr)) :
+            newJsonObject = JsonParser.ValueToJson(newjsonStr)
+            newjsonStr = JsonParser.MakeJsonToString(newJsonObject)
+            File.SaveFile(infoFilePathString.get().replace("File path : ", ""), newjsonStr)
+            infoLogString.set("Log : Save Success")
+        else :
+            infoLogString.set("Log : Save Fail, Check Json Format")
+            Interface.Util.AddLabelToTextByLine(jsonText, jsonStr.split("\n"), labelList, func.EntryAction)
+            return
+
+    def SaveNewFile() : 
+        global labelList
+        global jsonStr
+        global jsonText
+        global infoLogString
+        
+        if(jsonStr == "") : return
 
         newjsonStr = func.LabellistToString(labelList).replace(" ", "")
         if (JsonParser.CheckJsonAble(newjsonStr)) :
@@ -197,14 +252,30 @@ class func :
             if (targetFile != None) :
                 targetFile.write(newjsonStr)
                 targetFile.close()
+                infoLogString.set("Log : New file Saved")
         else :
-            print(newjsonStr, "is not json format")
-            Interface.Util.AddLabelToTextByLine(centerScrollText, jsonStr.split("\n"), labelList, func.EntryAction)
+            infoLogString.set("Log : Save Fail, Check Json Format")
+            Interface.Util.AddLabelToTextByLine(jsonText, jsonStr.split("\n"), labelList, func.EntryAction)
             return
 
     def EntryAction(var : tkinter.StringVar) :
+        global infoAbleString
         global labelList
-        print(JsonParser.CheckJsonAble(func.LabellistToString(labelList).replace(" ", "")))
+        if(JsonParser.CheckJsonAble(func.LabellistToString(labelList).replace(" ", ""))) :
+            infoAbleString.set("Check results convertible to json : True")
+        else :
+            infoAbleString.set("Check results convertible to json : False")
+
+    def Reset() : 
+        global jsonStr
+        global jsonText
+        global labelList
+        global infoLogString
+
+        if(jsonStr == "") : return
+        if(Interface.Util.ShowYesNoDialog("Reset", "Are you sure you want to reset?")) :
+            Interface.Util.AddLabelToTextByLine(jsonText, jsonStr.split("\n"), labelList, func.EntryAction)
+            infoLogString.set("Log : Reset Complete")
 
     def Restart() :
         python = sys.executable

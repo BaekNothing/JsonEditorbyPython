@@ -1,6 +1,4 @@
-﻿import os
-
-import tkinter
+﻿import tkinter
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
@@ -65,22 +63,32 @@ class Util :
         window = tkinter.Tk()
         window.title(title)
         window.resizable(True, True)
-        Util.__SetWindowIcon(window, "data/image/favicon.ico")
+        Util.SetIcon(
+            window,
+            './data/favicon.ico'
+        )
         return window
+
+    def SetIcon(window : tkinter.Tk, path : str) -> None:
+        window.iconbitmap(path)
 
     def CloseWindow(window : tkinter.Tk) -> None:
         window.destroy()
-    
-    def __SetWindowIcon(window : tkinter.Tk, icon : os.__file__):
-        window.iconbitmap(icon)
 
     def SetWindowSizePosition(window : tkinter.Tk, size : Vector2, position : Vector2) :
         window.geometry(f"{size.x}x{size.y}+{('%.0f'%position.x)}+{'%.0f'%position.y}")
 
     # Make Json to Labels in Text
     def AddLabelToTextByLine(Text: tkinter.Text, jsonStr : list, labelList : list, action) :
-        Text.delete("1.0", tkinter.END)
+        #disable focus in labelList
+        for label in labelList:
+            label.config(state="disabled")
+            label.destroy()
         labelList.clear()
+
+        Text.configure(state="normal")
+        Text.delete("1.0", tkinter.END)
+
         for eachLine in jsonStr : 
             Util.EachLineToTkinterObject(Text, eachLine, labelList, action)
         Text.configure(state=tkinter.DISABLED)
@@ -120,3 +128,6 @@ class Util :
         Text.configure(state="normal")
         Text.window_create(tkinter.END, window=newEntry)
         return newEntry
+
+    def ShowYesNoDialog(title : str, message : str) -> bool:
+        return messagebox.askyesno(title, message)

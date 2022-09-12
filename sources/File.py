@@ -2,11 +2,16 @@
 import tkinter
 import tkinter.filedialog
 
-from PIL import Image
-
 def ReadFile(filePath : str) -> str :
-    with open(filePath, "r", encoding='utf-8') as file:
-        return file.read()
+    try :
+        with open(filePath, "r", encoding='utf-8') as file:
+            return file.read()
+    except FileNotFoundError :
+        return ""
+
+def SaveFile(filePath : str, text : str) :
+    with open(filePath, "w", encoding='utf-8') as file:
+        file.write(text)
 
 def ShowFileDialog() -> os.__file__:
     try :
